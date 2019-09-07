@@ -1,0 +1,37 @@
+{
+  "name": "parser",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "author": "himself65",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "test": "yarn jest -i"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.7.1",
+    "@typescript-eslint/eslint-plugin": "^2.0.0",
+    "@typescript-eslint/parser": "^1.13.0",
+    "babel-eslint": "10.0.2",
+    "babel-plugin-named-asset-import": "^0.3.3",
+    "concurrently": "^4.1.1",
+    "cross-env": "^5.2.0",
+    "eslint": "^6.1.0",
+    "eslint-config-react-app": "^5.0.0",
+    "eslint-config-standard": "^13.0.1",
+    "eslint-loader": "^2.2.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-node": "^9.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-react": "7.14.3",
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "fs-extra": "^7.0.1",
+    "jest": "^24.8.0",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3"
+  }
+}
