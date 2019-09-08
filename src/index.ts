@@ -1,10 +1,11 @@
 const INTEGER = 'INTEGER'
 const PLUS = 'PLUS'
+const MINUS = 'MINUS'
 const EOF = 'EOF'
 
 class Token {
   type: string
-  value: string
+  value: any
 
   constructor (type: string, value: any) {
     this.type = type
@@ -16,34 +17,63 @@ class Token {
 
 export class Interpreter {
   text: string
-  pos = 0
+  pos: number
   currentToken: Token = new Token(EOF, null)
+  currentChar: string | null
 
   constructor (text: string) {
     this.text = text
+    this.pos = 0
+    this.currentChar = this.text[this.pos]
   }
 
   error = (): never => {
     throw Error('Error parsing input')
   }
 
-  getNextToken = (): Token => {
-    const text = this.text
-    if (this.pos > text.length - 1) {
-      return new Token(EOF, null)
-    }
-
-    const currentChar = text[this.pos]
-
-    if (/[0-9]/.test(currentChar)) {
-      this.pos++
-      return new Token(INTEGER, Number(currentChar))
-    } else if (currentChar === '+') {
-      this.pos++
-      return new Token(PLUS, Number(currentChar))
+  advance = () => {
+    this.pos++
+    if (this.pos > this.text.length - 1) {
+      this.currentChar = null
     } else {
+      this.currentChar = this.text[this.pos]
+    }
+  }
+
+  skipWhitespace = () => {
+    while (this.currentChar != null && this.currentChar === ' ') {
+      this.advance()
+    }
+  }
+
+  integer = () => {
+    let result = ''
+    while (this.currentChar != null && /[0-9]/.test(this.currentChar)) {
+      result += this.currentChar
+      this.advance()
+    }
+    return Number(result)
+  }
+
+  getNextToken = (): Token => {
+    while (this.currentChar != null) {
+      if (/ /.test(this.currentChar)) {
+        this.skipWhitespace()
+        continue
+      }
+
+      if (/[0-9]/.test(this.currentChar)) {
+        return new Token(INTEGER, this.integer())
+      } else if (this.currentChar === '+') {
+        this.advance()
+        return new Token(PLUS, '+')
+      } else if (this.currentChar === '-') {
+        this.advance()
+        return new Token(MINUS, '-')
+      }
       return this.error()
     }
+    return new Token(EOF, null)
   }
 
   eat = (tokenType: string) => {
@@ -61,11 +91,19 @@ export class Interpreter {
     this.eat(INTEGER)
 
     const op = this.currentToken
-    this.eat(PLUS)
+    if (op.type === PLUS) {
+      this.eat(PLUS)
+    } else {
+      this.eat(MINUS)
+    }
 
     const right = this.currentToken
     this.eat(INTEGER)
 
-    return left.value + right.value
+    if (op.type === PLUS) {
+      return left.value + right.value
+    } else {
+      return left.value - right.value
+    }
   }
 }
