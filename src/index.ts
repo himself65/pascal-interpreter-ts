@@ -84,26 +84,26 @@ export class Interpreter {
     }
   }
 
+  term = (): number => {
+    const token = this.currentToken
+    this.eat(INTEGER)
+    return token.value
+  }
+
   expr = () => {
     this.currentToken = this.getNextToken()
 
-    const left = this.currentToken
-    this.eat(INTEGER)
-
-    const op = this.currentToken
-    if (op.type === PLUS) {
-      this.eat(PLUS)
-    } else {
-      this.eat(MINUS)
+    let result = this.term()
+    while ([PLUS, MINUS].indexOf(this.currentToken.type) !== -1) {
+      const token = this.currentToken
+      if (token.type === PLUS) {
+        this.eat(PLUS)
+        result += this.term()
+      } else if (token.type === MINUS) {
+        this.eat(MINUS)
+        result -= this.term()
+      }
     }
-
-    const right = this.currentToken
-    this.eat(INTEGER)
-
-    if (op.type === PLUS) {
-      return left.value + right.value
-    } else {
-      return left.value - right.value
-    }
+    return result
   }
 }
