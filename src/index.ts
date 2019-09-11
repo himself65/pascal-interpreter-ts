@@ -1,6 +1,6 @@
 const INTEGER = 'INTEGER'
-const PLUS = 'PLUS'
-const MINUS = 'MINUS'
+const MUL = 'MUL'
+const DIV = 'DIV'
 const EOF = 'EOF'
 
 class Token {
@@ -15,7 +15,7 @@ class Token {
   toString = () => `Token(${this.type}, ${this.value})`
 }
 
-export class Interpreter {
+class Lexer {
   text: string
   pos: number
   currentToken: Token = new Token(EOF, null)
@@ -28,7 +28,7 @@ export class Interpreter {
   }
 
   error = (): never => {
-    throw Error('Error parsing input')
+    throw Error('Invalid character')
   }
 
   advance = () => {
@@ -64,44 +64,57 @@ export class Interpreter {
 
       if (/[0-9]/.test(this.currentChar)) {
         return new Token(INTEGER, this.integer())
-      } else if (this.currentChar === '+') {
+      } else if (this.currentChar === '*') {
         this.advance()
-        return new Token(PLUS, '+')
-      } else if (this.currentChar === '-') {
+        return new Token(MUL, '*')
+      } else if (this.currentChar === '/') {
         this.advance()
-        return new Token(MINUS, '-')
+        return new Token(DIV, '/')
       }
       return this.error()
     }
     return new Token(EOF, null)
   }
+}
+
+export class Interpreter {
+  lexer: Lexer
+  currentToken: Token
+
+  constructor (text: string) {
+    this.lexer = new Lexer(text)
+    this.currentToken = this.lexer.getNextToken()
+  }
+
+  error = (): never => {
+    throw Error('Invalid syntax')
+  }
 
   eat = (tokenType: string) => {
     if (this.currentToken.type === tokenType) {
-      this.currentToken = this.getNextToken()
+      this.currentToken = this.lexer.getNextToken()
     } else {
       this.error()
     }
   }
 
-  term = (): number => {
+  factor = () => {
     const token = this.currentToken
     this.eat(INTEGER)
     return token.value
   }
 
   expr = () => {
-    this.currentToken = this.getNextToken()
+    let result = this.factor()
 
-    let result = this.term()
-    while ([PLUS, MINUS].indexOf(this.currentToken.type) !== -1) {
+    while ([MUL, DIV].indexOf(this.currentToken.type) !== -1) {
       const token = this.currentToken
-      if (token.type === PLUS) {
-        this.eat(PLUS)
-        result += this.term()
-      } else if (token.type === MINUS) {
-        this.eat(MINUS)
-        result -= this.term()
+      if (token.type === MUL) {
+        this.eat(MUL)
+        result *= this.factor()
+      } else if (token.type === DIV) {
+        this.eat(DIV)
+        result /= this.factor()
       }
     }
     return result
