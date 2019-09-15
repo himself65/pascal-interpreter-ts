@@ -1,4 +1,6 @@
 const INTEGER = 'INTEGER'
+const PLUS = 'PLUS'
+const MINUS = 'MINUS'
 const MUL = 'MUL'
 const DIV = 'DIV'
 const EOF = 'EOF'
@@ -64,6 +66,12 @@ class Lexer {
 
       if (/[0-9]/.test(this.currentChar)) {
         return new Token(INTEGER, this.integer())
+      } else if (this.currentChar === '+') {
+        this.advance()
+        return new Token(PLUS, '+')
+      } else if (this.currentChar === '-') {
+        this.advance()
+        return new Token(MINUS, '-')
       } else if (this.currentChar === '*') {
         this.advance()
         return new Token(MUL, '*')
@@ -104,7 +112,7 @@ export class Interpreter {
     return token.value
   }
 
-  expr = () => {
+  term = () => {
     let result = this.factor()
 
     while ([MUL, DIV].indexOf(this.currentToken.type) !== -1) {
@@ -115,6 +123,21 @@ export class Interpreter {
       } else if (token.type === DIV) {
         this.eat(DIV)
         result /= this.factor()
+      }
+    }
+    return result
+  }
+
+  expr = () => {
+    let result = this.term()
+    while ([PLUS, MINUS].indexOf(this.currentToken.type) !== -1) {
+      const token = this.currentToken
+      if (token.type === PLUS) {
+        this.eat(PLUS)
+        result += this.term()
+      } else if (token.type === MINUS) {
+        this.eat(MINUS)
+        result -= this.term()
       }
     }
     return result
